@@ -19,7 +19,10 @@ app.post("/api/login", (req, res) => {
         id: user.id,
         isAdmin: user.isAdmin,
       },
-      "mySecretKey"
+      "mySecretKey",
+      {
+        expiresIn: "20s",
+      }
     );
     res.json({
       username: user.username,
