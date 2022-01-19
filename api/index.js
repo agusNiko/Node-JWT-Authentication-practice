@@ -3,9 +3,29 @@ const app = express();
 const jwt = require("jsonwebtoken");
 app.use(express.json());
 
+const cors = require("cors");
+
+let allowedOrigins = ["http://localhost:3000"];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        // If a specific origin isn’t found on the list of allowed origins
+        let message =
+          "The CORS policy for this application doesn’t allow access from origin " +
+          origin;
+        return callback(new Error(message), false);
+      }
+      return callback(null, true);
+    },
+  })
+);
+
 const users = [
   { id: "1", username: "peter", password: "peter1234", isAdmin: true },
-  { id: "1", username: "anna", password: "anna1234", isAdmin: false },
+  { id: "2", username: "anna", password: "anna1234", isAdmin: false },
 ];
 
 let refreshTokens = [];
@@ -48,7 +68,7 @@ const generateAccessToken = (user) => {
     },
     "mySecretKey",
     {
-      expiresIn: "30s",
+      expiresIn: "5s",
     }
   );
 };
@@ -62,7 +82,9 @@ const generateRefreshToken = (user) => {
     "myRefreshSecretKey"
   );
 };
-
+app.get("/api/login", (req, res) => {
+  res.json({ users });
+});
 //login and jsonWebToken generation
 app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
